@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text-to-audio</title>
+
+    <style type="text/css">
+        h1 {
+            width: 100%;
+        }
+        label {
+            margin-bottom: 12px !important;
+        }
+        .container {
+            top: 0;
+            padding: 30px 10px;
+            font-size: 18px;
+            width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+            background-color: rgba(172, 225, 221, 0.5);
+            position: relative;
+        }
+        .converter-form-group {
+            max-width: 300px;
+            margin: 20px auto;
+        }
+        .converter-form-group *, .converter-form-group-textarea * {
+            width: 90%;
+            display: block;
+            margin: auto;
+        }
+
+        input, select {
+            height: 30px;
+        }
+        input, select, textarea {
+            background-color: rgb(245, 236, 236);
+            border-radius: 4px;
+        }
+
+        button {
+            max-width: 200px;
+            height: 40px;
+            border-radius: 50px;
+            background-color: rgba(126, 213, 111, 0.8);
+        }
+        #converter-notice {
+            height: 200px;
+            width: 400px;
+            position: absolute;
+            background-color: whitesmoke;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid black;
+            border-radius: 5px;
+            transition: all .5s;
+            display: none;
+            z-index: 2000;
+        }
+
+        #converter-notice h3 {
+            color: green;
+            margin-top: 80px;
+        }
+
+        #back-ground-disabled {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            top: 0;
+            left: 0;
+            display: none;
+            transition: all .5s;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        function createFile(e) {
+            const url = 'https://api.tartunlp.ai/text-to-speech/v2';
+            const text = document.getElementById('text').value;
+            const filename = document.getElementById('name').value;
+            const speaker = document.getElementById('speaker').value;
+            const speed = document.getElementById('speed').value;
+
+            const data = {
+                text,
+                speaker,
+                speed
+            }
+
+            console.log(data);
+
+            let notice = $('#converter-notice');
+            notice.css('display', 'block');
+            let button = $('button');
+            button.prop('disabled', true);
+            let background = $('#back-ground-disabled');
+            background
+                .css('display', 'block');
+
+            fetch(url, {
+                body: JSON.stringify(data),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+            })
+                .then(response => response.blob())
+                .then(response => {
+                    const blob = new Blob([response], {type: 'audio/wav'});
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = filename + ".wav";
+                    document.body.appendChild(a);
+                    a.click();
+                    notice.css('display', 'none');
+                    background
+                        .css('display', 'none');
+                    button.prop('disabled', false);
+                    $('form')[0].reset();
+                })
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Tee tekst audiofailiks</h1>
+    <div class="converter-form">
+        <form action="javascript:createFile(event)">
+            <div class="converter-form-group-textarea">
+                <label for="text">Sisutekst</label>
+                <textarea name="converter-text" id="text" cols="100" rows="30" required
+                          placeholder="See on minu uudis"></textarea>
+            </div>
+            <div class="converter-form-group">
+                <label for="name">Loodava faili nimi</label>
+                <input type="text" name="converter-file-name" id="name" required placeholder="Artikkel 123">
+            </div>
+            <div class="converter-form-group">
+                <label for="speaker">Pealelugeja hääl</label>
+                <select name="converter-speaker" id="speaker">
+                    <option value="Albert">Albert</option>
+                    <option value="Kalev">Kalev</option>
+                    <option value="Külli">Külli</option>
+                    <option value="Mari" selected>Mari</option>
+                    <option value="Meelis">Meelis</option>
+                    <option value="Vesta">Vesta</option>
+                </select>
+            </div>
+            <div class="converter-form-group">
+                <label for="speed">Kiirus</label>
+                <select name="converter-speed" id="speed">
+                    <option value="0.5">0.5</option>
+                    <option value="0.6">0.6</option>
+                    <option value="0.7">0.7</option>
+                    <option value="0.8">0.8</option>
+                    <option value="0.9">0.9</option>
+                    <option value="1.0" selected>1.0</option>
+                    <option value="1.1">1.1</option>
+                    <option value="1.2">1.2</option>
+                    <option value="1.3">1.3</option>
+                    <option value="1.4">1.4</option>
+                    <option value="1.5">1.5</option>
+                    <option value="1.6">1.6</option>
+                    <option value="1.7">1.7</option>
+                    <option value="1.8">1.8</option>
+                    <option value="1.9">1.9</option>
+                    <option value="2.0">2.0</option>
+                </select>
+            </div>
+            <div class="converter-form-group">
+                <button>Loo fail</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="converter-notice">
+        <h3>Faili luuakse</h3>
+    </div>
+
+    <div id="back-ground-disabled"></div>
+</div>
+</body>
+</html>
