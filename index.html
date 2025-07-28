@@ -1,183 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="et">
 <head>
-    <meta charset="UTF-8">
-    <title>Text-to-audio</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ligipääsetav stand-up</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #111;
+      font-family: Arial, sans-serif;
+    }
 
-    <style type="text/css">
-        h1 {
-            width: 100%;
-        }
-        label {
-            margin-bottom: 12px !important;
-        }
-        .container {
-            top: 0;
-            padding: 30px 10px;
-            font-size: 18px;
-            width: 1000px;
-            margin: 0 auto;
-            text-align: center;
-            background-color: rgba(172, 225, 221, 0.5);
-            position: relative;
-        }
-        .converter-form-group {
-            max-width: 300px;
-            margin: 20px auto;
-        }
-        .converter-form-group *, .converter-form-group-textarea * {
-            width: 90%;
-            display: block;
-            margin: auto;
-        }
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
 
-        input, select {
-            height: 30px;
-        }
-        input, select, textarea {
-            background-color: rgb(245, 236, 236);
-            border-radius: 4px;
-        }
+    a {
+      text-decoration: none;
+      color: #fff;
+      background-color: #444;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 20px;
+      transition: background-color 0.3s ease;
+    }
 
-        button {
-            max-width: 200px;
-            height: 40px;
-            border-radius: 50px;
-            background-color: rgba(126, 213, 111, 0.8);
-        }
-        #converter-notice {
-            height: 200px;
-            width: 400px;
-            position: absolute;
-            background-color: whitesmoke;
-            top: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 2px solid black;
-            border-radius: 5px;
-            transition: all .5s;
-            display: none;
-            z-index: 2000;
-        }
-
-        #converter-notice h3 {
-            color: green;
-            margin-top: 80px;
-        }
-
-        #back-ground-disabled {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            top: 0;
-            left: 0;
-            display: none;
-            transition: all .5s;
-        }
-    </style>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script>
-        function createFile(e) {
-            const url = 'https://api.tartunlp.ai/text-to-speech/v2';
-            const text = document.getElementById('text').value;
-            const filename = document.getElementById('name').value;
-            const speaker = document.getElementById('speaker').value;
-            const speed = document.getElementById('speed').value;
-
-            const data = {
-                text,
-                speaker,
-                speed
-            }
-
-            console.log(data);
-
-            let notice = $('#converter-notice');
-            notice.css('display', 'block');
-            let button = $('button');
-            button.prop('disabled', true);
-            let background = $('#back-ground-disabled');
-            background
-                .css('display', 'block');
-
-            fetch(url, {
-                body: JSON.stringify(data),
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json; charset=utf-8'
-                },
-            })
-                .then(response => response.blob())
-                .then(response => {
-                    const blob = new Blob([response], {type: 'audio/wav'});
-                    const downloadUrl = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = downloadUrl;
-                    a.download = filename + ".wav";
-                    document.body.appendChild(a);
-                    a.click();
-                    notice.css('display', 'none');
-                    background
-                        .css('display', 'none');
-                    button.prop('disabled', false);
-                    $('form')[0].reset();
-                })
-        }
-    </script>
+    a:hover {
+      background-color: #666;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h1>Tee tekst audiofailiks</h1>
-    <div class="converter-form">
-        <form action="javascript:createFile(event)">
-            <div class="converter-form-group-textarea">
-                <label for="text">Sisutekst</label>
-                <textarea name="converter-text" id="text" cols="100" rows="30" required
-                          placeholder="See on minu uudis"></textarea>
-            </div>
-            <div class="converter-form-group">
-                <label for="name">Loodava faili nimi</label>
-                <input type="text" name="converter-file-name" id="name" required placeholder="Artikkel 123">
-            </div>
-            <div class="converter-form-group">
-                <label for="speaker">Pealelugeja hääl</label>
-                <select name="converter-speaker" id="speaker">
-                    <option value="albert">Albert</option>
-                    <option value="indrek">Indrek</option>
-                    <option value="kalev">Kalev</option>
-                    <option value="kylli">Külli</option>
-                    <option value="lee">Lee</option>
-                    <option value="liivika">Liivika</option>
-                    <option value="luukas">Luukas</option>
-                    <option value="mari" selected>Mari</option>
-                    <option value="meelis">Meelis</option>
-                    <option value="peeter">Peeter</option>
-                    <option value="tambet">Tambet</option>
-                    <option value="sulev">Sulev</option>
-                    <option value="vesta">Vesta</option>
-                </select>
-            </div>
-            <div class="converter-form-group">
-                <label for="speed">Kiirus</label>
-                <select name="converter-speed" id="speed">
-                    <option value="1" selected>1</option>
-                    <option value="2">2</option>
-                </select>
-            </div>
-            <div class="converter-form-group">
-                <button>Loo fail</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="converter-notice">
-        <h3>Faili luuakse</h3>
-    </div>
-
-    <div id="back-ground-disabled"></div>
-</div>
+  <nav>
+    <a href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank">Mustla show piletid</a>
+    <a href="https://forms.gle/RDPZ7Qtq2UUX4yM38" target="_blank">Kutsu meid esinema</a>
+  </nav>
 </body>
 </html>
