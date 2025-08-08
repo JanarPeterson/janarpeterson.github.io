@@ -2,171 +2,197 @@
 <html lang="et">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Ligipääsetav stand-up</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-color: #111;
-      font-family: Arial, sans-serif;
-      color: white;
-      text-align: center;
-        overflow-x: hidden;
+    /* --- Design tokens --- */
+    :root {
+      --bg: #0f0f10;
+      --panel: #17181a;
+      --text: #ffffff;
+      --muted: #b7b7b7;
+      --accent: #fa78d1;
+      --accent-2: #6fc3ff;
+      --btn: #2a2d32;
+      --btn-hover: #3a3f45;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --container: 1000px;
+      --space: min(5vw, 28px);
     }
 
-    #header-img {
-      max-width: 70%;
-      height: auto;
+    /* --- Reset / base --- */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; 
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 10% -10%, rgba(250,120,209,.12), transparent 60%),
+                  radial-gradient(1200px 800px at 110% 10%, rgba(111,195,255,.12), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x:hidden;
+    }
+    img{max-width:100%; display:block}
+    a{color:inherit; text-decoration:none}
+
+    /* --- Layout --- */
+    .container{max-width:var(--container); margin:0 auto; padding: calc(var(--space) * 1.5) var(--space)}
+    header{ padding-top: max(env(safe-area-inset-top), 16px); text-align:center; }
+
+    .hero{ display:grid; place-items:center; row-gap: 18px; }
+    .hero img{
+      width:min(900px, 92vw);
+      height:auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    h1 {
-      margin-top: 20px;
-      font-size: 36px;
+    h1{
+      margin: 18px 0 6px;
+      font-weight: 800;
+      line-height:1.1;
+      letter-spacing: -0.01em;
+      font-size: clamp(28px, 4.6vw, 44px);
     }
 
-    nav {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin: 75px 0px;
+    .lead{color:var(--muted); font-size: clamp(14px, 2.6vw, 18px)}
+
+    main{margin-top: 14px}
+    .content{ 
+      margin: 0 auto; 
+      background: color-mix(in oklab, var(--panel) 92%, black);
+      border: 1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: clamp(16px, 4vw, 28px);
+    }
+    .content p{
+      margin: 0 0 18px;
+      font-size: clamp(16px, 2.6vw, 18px);
+      line-height: 1.6;
+      max-width: 72ch;
+      margin-inline:auto;
     }
 
-    a {
-      text-decoration: none;
-      color: #fff;
-      background-color: #444;
-      padding: 15px 30px;
-      border-radius: 8px;
-      font-size: 20px;
-      transition: background-color 0.3s ease;
+    /* --- Actions --- */
+    .actions{
+      margin: 28px auto 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 14px;
+      max-width: 720px;
+    }
+    @media (max-width: 560px){ .actions{ grid-template-columns: 1fr } }
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      background: var(--btn);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 14px 18px;
+      border-radius: calc(var(--radius) - 4px);
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 1;
+      transition: transform .08s ease, background .25s ease, box-shadow .25s ease;
+      will-change: transform;
+    }
+    .btn:hover{ background: var(--btn-hover) }
+    .btn:active{ transform: translateY(1px) }
+    .btn--primary{
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 22%, #000), #2a1f27);
+      border-color: color-mix(in oklab, var(--accent) 35%, #000);
+    }
+    .btn--primary:hover{ filter: brightness(1.08) }
+
+    .btn--secondary{
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2) 22%, #000), #1d2a35);
+      border-color: color-mix(in oklab, var(--accent-2) 35%, #000);
     }
 
-    a:hover {
-      background-color: #666;
-    }
+    .btn:focus-visible{ outline: 3px solid color-mix(in oklab, var(--accent) 65%, white); outline-offset: 3px; }
 
-    p {
-      max-width: 60%;
-      margin: 40px 0px 0px 0px;
-    }
+    /* --- Instagram section --- */
+    footer{ margin-top: clamp(28px, 6vw, 70px); background: linear-gradient(0deg, rgba(255,255,255,.04), rgba(255,255,255,0)); border-top: 1px solid rgba(255,255,255,.06); }
 
-    h1 {
-      margin-top: 50px;
-    }
+    .ig-wrap{ padding: clamp(20px, 5vw, 36px) var(--space) calc(var(--space) * 2); text-align:center; }
+    footer h2{ color: var(--accent); font-size: clamp(18px, 2.8vw, 22px); margin: 0 0 16px; }
 
-    footer {
-      width: 100%;
-  margin-top: 60px;
-  padding: 30px 20px;
-  background-color: #222;
-  color: #fff;
-  text-align: center;
-}
+    /* Keep a single row on larger screens; single column on mobile */
+    .ig-grid{ display:flex; gap:12px; justify-content:center; align-items:stretch; flex-wrap:nowrap; max-width:var(--container); margin:0 auto; overflow-x:auto; scroll-snap-type:x proximity; }
+    .ig-item{ display:flex; align-items:center; justify-content:center; gap:10px; background: var(--panel); border: 1px solid rgba(255,255,255,.06); padding: 12px 14px; border-radius: calc(var(--radius) - 6px); transition: background .25s ease, transform .08s ease; min-height: 52px; scroll-snap-align:start; }
+    .ig-item:hover{ background: #1f2125 }
+    .ig-item:active{ transform: translateY(1px) }
+    .ig-item img{ width:20px; height:20px; filter: brightness(0) invert(1) }
+    .handle{ font-size: 16px }
 
+    @media (max-width: 600px){ .ig-grid{ flex-direction: column; flex-wrap: nowrap; overflow-x: clip; } .ig-item{ width:100%; } }
 
-.instagram-links {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  text-align: center;
-}
-
-
-.instagram-links a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.instagram-links a:hover {
-  color: #fa78d1;
-}
-
-.instagram-links img {
-  width: 20px;
-  height: 20px;
-  filter: brightness(0) invert(1);
-}
-
-h3 {
-  margin-bottom: -35px;
-  color: #fa78d1;
-}
-
-
-@media (max-width: 600px) {
-  .instagram-links {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-  }
-
-  #header-img {
-    min-width: 100%;
-  }
-
-  .instagram-links a {
-  width: 60%;
-  justify-content: center;
-  }
-}
-
+    /* --- Motion preference --- */
+    @media (prefers-reduced-motion: reduce){ .btn, .ig-item{ transition: none } }
   </style>
 </head>
 <body>
-  <img id="header-img" src="header.png" alt="Ligipääsetav stand-up header"/>
-    <h1>Ligipääsetav stand-up</h1>
-  <p>
-    "Ligipääsetav stand-up" on projekt (kestus 01.08.25 - 30.04.26) mis soovib tuua stand-up komöödia Eesti väiksematesse paikadesse, et edendada kohalike rahva- ja seltsimajade aktiivsemat kasutamist ning tuua kultuurielu lähemale kogukondadele. Kõik selle projekti raames toimuvad üritused (planeeritud vähemalt 10) on tasuta, kuid sujuvama korralduse huvides palume külastajatel eelnevalt veebis koha broneerida. Nii saame tagada, et kõigile jagub istekohti ning saal jääb mugavaks ja toimivaks.
-  </p>
-  <p>
-    Kui meie kalendris või šõude nimekirjas ei leidu kohta kus meid näha sooviksid või kui oskad meile lihtsalt ideaalset Rahva- või Seltsimaja soovitada, siis palun anna meile sellest teada "Kutsu meid esinema" nupu kaudu. Lihtsalt täida ära sealses vormis olevad kolm välja, vajuta "Saada ära" ning me vaatame mis teha annab. Suured tänud kõigile osalejatele juba ette!
-  </p>
-  <nav>
-    <a href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank">Broneeri koht Mustla šõule</a>
-    <a href="https://forms.gle/RDPZ7Qtq2UUX4yM38" target="_blank">Kutsu meid esinema</a>
-  </nav>
+  <header class="container">
+    <div class="hero">
+      <img src="header.png" alt="Ligipääsetav stand-up – projekti päis" loading="eager" />
+      <h1>Ligipääsetav stand-up</h1>
+      <p class="lead">Projekt toob tasuta stand-up õhtud väiksematesse kohtadesse üle Eesti.</p>
+    </div>
+  </header>
 
-  <h3>Jälgi meid Instagramis</h3>
+  <main class="container">
+    <section class="content" aria-label="Projekti kirjeldus">
+      <p>
+        "Ligipääsetav stand-up" on projekt (kestus 01.08.25 – 30.04.26), mis soovib tuua stand-up
+        komöödia Eesti väiksematesse paikadesse, et edendada kohalike rahva- ja seltsimajade
+        aktiivsemat kasutamist ning tuua kultuurielu lähemale kogukondadele. Kõik selle projekti
+        raames toimuvad üritused (planeeritud vähemalt 10) on tasuta, kuid sujuvama korralduse huvides
+        palume külastajatel eelnevalt veebis koha broneerida. Nii saame tagada, et kõigile jagub
+        istekohti ning saal jääb mugavaks ja toimivaks.
+      </p>
+      <p>
+        Kui meie kalendris või šõude nimekirjas ei leidu kohta, kus meid näha sooviksid või kui oskad
+        meile lihtsalt ideaalset rahva- või seltsimaja soovitada, siis palun anna meile sellest teada
+        „Kutsu meid esinema“ nupu kaudu. Täida sealses vormis olevad kolm välja, vajuta „Saada ära“ ning
+        me vaatame, mis teha annab. Suured tänud kõigile osalejatele juba ette!
+      </p>
+
+      <div class="actions" role="navigation" aria-label="Peamised tegevused">
+        <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri koht Mustla šõule</a>
+        <a class="btn btn--secondary" href="https://forms.gle/RDPZ7Qtq2UUX4yM38" target="_blank" rel="noopener noreferrer">Kutsu meid esinema</a>
+      </div>
+    </section>
+  </main>
 
   <footer>
-  <div class="instagram-links">
-    <a href="https://www.instagram.com/laasikmartin" target="_blank" rel="noopener noreferrer">
-      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" />
-      @laasikmartin
-    </a>
-    <a href="https://www.instagram.com/janar.peterson" target="_blank" rel="noopener noreferrer">
-      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" />
-      @janar.peterson
-    </a>
-    <a href="https://www.instagram.com/mikkmgi" target="_blank" rel="noopener noreferrer">
-      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" />
-      @mikkmgi
-    </a>
-    <a href="https://www.instagram.com/rivo.roost" target="_blank" rel="noopener noreferrer">
-      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" />
-      @rivo.roost
-    </a>
-        <a href="https://www.instagram.com/martin_a_levo" target="_blank" rel="noopener noreferrer">
-      <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" />
-      @martin_a_levo
-    </a>
-  </div>
-</footer>
-
+    <div class="ig-wrap container">
+      <h2>Jälgi meid Instagramis</h2>
+      <div class="ig-grid">
+        <a class="ig-item" href="https://www.instagram.com/laasikmartin" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @laasikmartin">
+          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
+          <span class="handle">@laasikmartin</span>
+        </a>
+        <a class="ig-item" href="https://www.instagram.com/janar.peterson" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @janar.peterson">
+          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
+          <span class="handle">@janar.peterson</span>
+        </a>
+        <a class="ig-item" href="https://www.instagram.com/mikkmgi" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @mikkmgi">
+          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
+          <span class="handle">@mikkmgi</span>
+        </a>
+        <a class="ig-item" href="https://www.instagram.com/rivo.roost" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @rivo.roost">
+          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
+          <span class="handle">@rivo.roost</span>
+        </a>
+        <a class="ig-item" href="https://www.instagram.com/martin_a_levo" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @martin_a_levo">
+          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
+          <span class="handle">@martin_a_levo</span>
+        </a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
