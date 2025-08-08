@@ -81,11 +81,27 @@
     .actions{
       margin: 28px auto 0;
       display: grid;
-      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 14px;
       max-width: 720px;
     }
     @media (max-width: 560px){ .actions{ grid-template-columns: 1fr } }
+
+    /* --- Calendar --- */
+    .schedule{ margin-top: 28px }
+    .shows{ list-style:none; margin:0; padding:0; display:grid; gap:14px }
+    .show{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      padding: 14px 18px;
+      border-radius: calc(var(--radius) - 6px);
+    }
+    .show time{ font-weight:600 }
 
     .btn{
       display:inline-flex; align-items:center; justify-content:center;
@@ -161,9 +177,18 @@
       </p>
 
       <div class="actions" role="navigation" aria-label="Peamised tegevused">
-        <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri koht Mustla šõule</a>
         <a class="btn btn--secondary" href="https://forms.gle/RDPZ7Qtq2UUX4yM38" target="_blank" rel="noopener noreferrer">Kutsu meid esinema</a>
       </div>
+    </section>
+
+    <section class="content schedule" aria-label="Šõude kalender">
+      <h2>Eelseisvad šõud</h2>
+      <ul class="shows">
+        <li class="show">
+          <span><time datetime="2025-08-15">15. august 2025</time> – Mustla rahvamaja</span>
+          <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri</a>
+        </li>
+      </ul>
     </section>
   </main>
 
