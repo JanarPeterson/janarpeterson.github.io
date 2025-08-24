@@ -15,6 +15,33 @@
     gtag('config', 'G-2MYD7NST72');
   </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const shows = document.querySelectorAll(".show");
+
+    shows.forEach(show => {
+      const timeEl = show.querySelector("time");
+      const link = show.querySelector("a.btn");
+
+      if (timeEl && link) {
+        const eventDate = new Date(timeEl.getAttribute("datetime"));
+        const now = new Date();
+
+        if (eventDate < now) {
+          // Disable link
+          link.removeAttribute("href");
+          link.removeAttribute("target");
+          link.removeAttribute("rel");
+          link.textContent = "Üritus on toimunud";
+          link.style.pointerEvents = "none";
+          link.style.opacity = "0.6";
+        }
+      }
+    });
+  });
+</script>
+
+
   <style>
     /* --- Design tokens --- */
     :root {
@@ -193,7 +220,7 @@
     </section>
 
     <section class="content schedule" aria-label="Šõude kalender">
-      <h2>Eelseisvad sündmused</h2>
+      <h2>Eelseisvad šõud</h2>
       <ul class="shows">
         <li class="show">
           <span><time datetime="2025-08-22">22. august 2025</time> – Mustla rahvamaja</span>
