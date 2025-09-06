@@ -11,24 +11,28 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-2MYD7NST72');
   </script>
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const shows = document.querySelectorAll(".show");
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const upcomingList = document.querySelector("#upcomingShows");
+      const pastList = document.querySelector("#pastShows");
+      const upcomingWrapper = document.querySelector(".upcoming-schedule");
+      const pastWrapper = document.querySelector(".past-schedule");
 
-    shows.forEach(show => {
-      const timeEl = show.querySelector("time");
-      const link = show.querySelector("a.btn");
+      // Gather all .show items from anywhere on the page
+      const allShows = Array.from(document.querySelectorAll(".show"));
 
-      if (timeEl && link) {
-        const eventDate = new Date(timeEl.getAttribute("datetime"));
-        const now = new Date();
+      const now = new Date();
+      const parsed = allShows.map(li => {
+        const timeEl = li.querySelector("time");
+        const link = li.querySelector("a.btn");
+        const dateStr = timeEl?.getAttribute("datetime") || "";
+        const d = new Date(dateStr);
+        const isPast = !isNaN(+d) && d < now;
 
-        if (eventDate < now) {
-          // Disable link
+        if (isPast && link) {
           link.removeAttribute("href");
           link.removeAttribute("target");
           link.removeAttribute("rel");
@@ -36,11 +40,33 @@
           link.style.pointerEvents = "none";
           link.style.opacity = "0.6";
         }
-      }
-    });
-  });
-</script>
+        return { li, date: d, isPast };
+      });
 
+      // Clear lists before re-append
+      upcomingList.innerHTML = "";
+      pastList.innerHTML = "";
+
+      // Sort and append
+      const upcoming = parsed.filter(x => !x.isPast)
+        .sort((a, b) => (+a.date || 0) - (+b.date || 0));
+      const past = parsed.filter(x => x.isPast)
+        .sort((a, b) => (+b.date || 0) - (+a.date || 0));
+
+      upcoming.forEach(x => upcomingList.appendChild(x.li));
+      past.forEach(x => pastList.appendChild(x.li));
+
+      // Update counters
+      const upCountEl = upcomingWrapper.querySelector("summary .count");
+      const pastCountEl = pastWrapper.querySelector("summary .count");
+      if (upCountEl) upCountEl.textContent = `(${upcoming.length})`;
+      if (pastCountEl) pastCountEl.textContent = `(${past.length})`;
+
+      // If no items, soften the dropdown
+      if (!upcoming.length) upcomingWrapper.setAttribute("aria-disabled", "true");
+      if (!past.length) pastWrapper.setAttribute("aria-disabled", "true");
+    });
+  </script>
 
   <style>
     /* --- Design tokens --- */
@@ -115,18 +141,28 @@
       margin-inline:auto;
     }
 
-    /* --- Actions --- */
+    /* Center the "Kutsu meid esinema" button */
     .actions{
       margin: 28px auto 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      max-width: 720px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;            /* if you add more buttons later */
+      max-width: 720px;     /* optional: keeps it tidy on wide screens */
+      text-align: center;   /* fallback */
     }
-    @media (max-width: 560px){ .actions{ grid-template-columns: 1fr } }
+    @media (max-width: 560px){
+      .actions{
+        flex-direction: column;
+      }
+      .actions .btn{
+        width: 100%;
+        max-width: 360px;   /* optional: nice width on mobile */
+      }
+    }
 
-    /* --- Calendar --- */
-    .schedule{ margin-top: 28px }
+
+    /* --- Shows list --- */
     .shows{ list-style:none; margin:0; padding:0; display:grid; gap:14px }
     .show{
       display:flex;
@@ -160,31 +196,88 @@
       border-color: color-mix(in oklab, var(--accent) 35%, #000);
     }
     .btn--primary:hover{ filter: brightness(1.08) }
-
     .btn--secondary{
       background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2) 22%, #000), #1d2a35);
       border-color: color-mix(in oklab, var(--accent-2) 35%, #000);
     }
-
     .btn:focus-visible{ outline: 3px solid color-mix(in oklab, var(--accent) 65%, white); outline-offset: 3px; }
 
-    /* --- Instagram section --- */
+    /* --- Dropdowns (details) --- */
+    details.schedule-box {
+      margin-top: 16px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: color-mix(in oklab, var(--panel) 94%, black);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    details.schedule-box[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
+    details.schedule-box[aria-disabled="true"] { opacity: .7; }
+    details.schedule-box summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      user-select: none;
+      font-size: clamp(18px, 2.8vw, 22px);
+    }
+    details.schedule-box summary::-webkit-details-marker { display:none }
+    .caret {
+      display:inline-block;
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--text);
+      transform: rotate(180deg); /* default open caret points up */
+      transition: transform .18s ease;
+    }
+    details[open] .caret { transform: rotate(180deg); }
+    details:not([open]) .caret { transform: rotate(0deg); }
+    details.schedule-box .inner { padding: 16px 20px; }
+
+    /* --- Sponsors --- */
+    .sponsors {
+      margin-top: clamp(28px, 6vw, 70px);
+      background: #1d1e20;
+      padding: clamp(28px, 6vw, 50px) var(--space);
+      text-align: center;
+      width: 100%;
+    }
+    .sponsors h2 {
+      color: var(--accent-2);
+      margin-bottom: 28px;
+    }
+    .sponsor-logos {
+      display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;
+    }
+    .sponsor-logos img {
+      max-height: 80px; width: auto; object-fit: contain; border-radius: 8px; padding: 6px;
+    }
+    .sponsor-cta {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: clamp(15px, 2.4vw, 17px);
+    }
+    .sponsor-cta a {
+      color: var(--accent-2);
+      text-decoration: underline;
+    }
+
+    /* --- Instagram --- */
     footer{ margin-top: clamp(28px, 6vw, 70px); background: linear-gradient(0deg, rgba(255,255,255,.04), rgba(255,255,255,0)); border-top: 1px solid rgba(255,255,255,.06); }
-
     .ig-wrap{ padding: clamp(20px, 5vw, 36px) var(--space) calc(var(--space) * 2); text-align:center; }
-    footer h2{ color: var(--accent); font-size: clamp(18px, 2.8vw, 22px); margin: 0 0 16px; }
-
-    /* Keep a single row on larger screens; single column on mobile */
+    footer h2{ color: var(--accent); margin: 0 0 16px; }
     .ig-grid{ display:flex; gap:12px; justify-content:center; align-items:stretch; flex-wrap:nowrap; max-width:var(--container); margin:0 auto; overflow-x:auto; scroll-snap-type:x proximity; }
     .ig-item{ display:flex; align-items:center; justify-content:center; gap:10px; background: var(--panel); border: 1px solid rgba(255,255,255,.06); padding: 12px 14px; border-radius: calc(var(--radius) - 6px); transition: background .25s ease, transform .08s ease; min-height: 52px; scroll-snap-align:start; }
     .ig-item:hover{ background: #1f2125 }
     .ig-item:active{ transform: translateY(1px) }
     .ig-item img{ width:20px; height:20px; filter: brightness(0) invert(1) }
     .handle{ font-size: 16px }
-
     @media (max-width: 600px){ .ig-grid{ flex-direction: column; flex-wrap: nowrap; overflow-x: clip; } .ig-item{ width:100%; } }
 
-    /* --- Motion preference --- */
     @media (prefers-reduced-motion: reduce){ .btn, .ig-item{ transition: none } }
   </style>
 </head>
@@ -219,16 +312,56 @@
       </div>
     </section>
 
-    <section class="content schedule" aria-label="Šõude kalender">
-      <h2>Eelseisvad šõud</h2>
-      <ul class="shows">
-        <li class="show">
-          <span><time datetime="2025-08-22">22. august 2025</time> – Mustla rahvamaja</span>
-          <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-        </li>
-      </ul>
-    </section>
+    <!-- Upcoming shows dropdown (open by default) -->
+    <details class="schedule-box upcoming-schedule content" open aria-label="Eelseisvate šõude kalender">
+      <summary>
+        <span class="caret" aria-hidden="true"></span>
+        Eelseisvad šõud <span class="count" style="opacity:.8; font-weight:600">(…)</span>
+      </summary>
+      <div class="inner">
+        <ul class="shows" id="upcomingShows">
+          <!-- Pre-seeded items; script will sort and manage them -->
+          <li class="show">
+            <span><time datetime="2025-08-22">22. august 2025</time> – Mustla rahvamaja</span>
+            <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
+          </li>
+          <li class="show">
+            <span><time datetime="2025-10-31">31. oktoober 2025</time> – Tapa kultuurikoda</span>
+            <a class="btn btn--primary" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
+          </li>
+          <li class="show">
+            <span><time datetime="2025-11-21">21. november 2025</time> – Sindi seltsimaja</span>
+            <a class="btn btn--primary" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
+          </li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- Past shows dropdown -->
+    <details class="schedule-box past-schedule content" aria-label="Varasemate šõude arhiiv">
+      <summary>
+        <span class="caret" aria-hidden="true"></span>
+        Toimunud šõud <span class="count" style="opacity:.8; font-weight:600">(…)</span>
+      </summary>
+      <div class="inner">
+        <ul class="shows" id="pastShows"></ul>
+      </div>
+    </details>
   </main>
+
+  <!-- Sponsors -->
+  <section class="sponsors" aria-label="Sponsorid">
+    <h2>Meie toetajad</h2>
+    <div class="sponsor-logos">
+      <img src="./logos/kr-eu-trans.png" alt="Kaasrahastanud Euroopa Liit" />
+      <img src="./logos/sol-eu-trans.png" alt="Euroopa Solidaarsuskorpus" />
+      <img src="./logos/kuma-trans.png" alt="Kuma Print" />
+    </div>
+    <p class="sponsor-cta">
+      Kas soovid ka oma panuse anda? Kirjuta meile
+      <a href="mailto:info@ligipaasetav.eu">info@ligipaasetav.eu</a>
+    </p>
+  </section>
 
   <footer>
     <div class="ig-wrap container">
