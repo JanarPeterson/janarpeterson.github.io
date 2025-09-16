@@ -40,6 +40,15 @@
           link.style.pointerEvents = "none";
           link.style.opacity = "0.6";
         }
+
+        if (link.classList.contains('show-inactive')) {
+          link.removeAttribute("href");
+          link.removeAttribute("target");
+          link.removeAttribute("rel");
+          link.style.pointerEvents = "none";
+          link.style.opacity = "0.6";
+        }
+
         return { li, date: d, isPast };
       });
 
@@ -333,14 +342,18 @@
             <span><time datetime="2025-10-31">31. oktoober 2025</time> – Tapa Kultuurikoda</span>
             <a class="btn btn--primary" href="https://fienta.com/et/tapa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
           </li>
-          <!-- <li class="show">
+          <li class="show">
+            <span><time datetime="2025-11-07">7. november 2025</time> – Laagri Kultuurikeskus</span>
+            <a class="btn btn--primary show-inactive" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
+          </li>
+          <li class="show">
             <span><time datetime="2025-11-14">14. november 2025</time> – Vändra Kultuurimaja</span>
-            <a class="btn btn--primary" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
+            <a class="btn btn--primary show-inactive" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
           </li>
           <li class="show">
             <span><time datetime="2025-11-21">21. november 2025</time> – Sindi Seltsimaja</span>
-            <a class="btn btn--primary" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
-          </li> -->
+            <a class="btn btn--primary show-inactive" href="#" aria-label="Broneerimine peagi">Broneerimine peagi</a>
+          </li>
         </ul>
       </div>
     </details>
