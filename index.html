@@ -30,6 +30,7 @@
         const link = li.querySelector("a.btn");
         const dateStr = timeEl?.getAttribute("datetime") || "";
         const d = new Date(dateStr);
+        d.setDate(d.getDate() + 1);
         const isPast = !isNaN(+d) && d < now;
 
         if (isPast && link) {
@@ -409,9 +410,9 @@
       <a href="mailto:info@ligipaasetav.eu">info@ligipaasetav.eu</a>
     </p>
     <p class="sponsor-cta">
-      <b>Või tee lihtsalt väike ülekanne
+      Või tee lihtsalt väike ülekanne
       <br>
-      JANAR PETERSON EE317700771011881330</b>
+      <b>JANAR PETERSON EE417700771012064868</b>
     </p>
   </section>
 
