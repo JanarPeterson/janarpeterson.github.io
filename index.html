@@ -14,72 +14,7 @@
     gtag('config', 'G-2MYD7NST72');
   </script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const upcomingList = document.querySelector("#upcomingShows");
-      const pastList = document.querySelector("#pastShows");
-      const upcomingWrapper = document.querySelector(".upcoming-schedule");
-      const pastWrapper = document.querySelector(".past-schedule");
-
-      // Gather all .show items from anywhere on the page
-      const allShows = Array.from(document.querySelectorAll(".show"));
-
-      const now = new Date();
-      const parsed = allShows.map(li => {
-        const timeEl = li.querySelector("time");
-        const link = li.querySelector("a.btn");
-        const dateStr = timeEl?.getAttribute("datetime") || "";
-        const d = new Date(dateStr);
-        d.setDate(d.getDate() + 1);
-        const isPast = !isNaN(+d) && d < now;
-
-        if (isPast && link) {
-          link.removeAttribute("href");
-          link.removeAttribute("target");
-          link.removeAttribute("rel");
-          link.textContent = "Üritus on toimunud";
-          link.style.pointerEvents = "none";
-          link.style.opacity = "0.6";
-        }
-
-        if (link.classList.contains('show-inactive')) {
-          link.removeAttribute("href");
-          link.removeAttribute("target");
-          link.removeAttribute("rel");
-          link.style.pointerEvents = "none";
-          link.style.opacity = "0.6";
-        }
-
-        return { li, date: d, isPast };
-      });
-
-      // Clear lists before re-append
-      upcomingList.innerHTML = "";
-      pastList.innerHTML = "";
-
-      // Sort and append
-      const upcoming = parsed.filter(x => !x.isPast)
-        .sort((a, b) => (+a.date || 0) - (+b.date || 0));
-      const past = parsed.filter(x => x.isPast)
-        .sort((a, b) => (+b.date || 0) - (+a.date || 0));
-
-      upcoming.forEach(x => upcomingList.appendChild(x.li));
-      past.forEach(x => pastList.appendChild(x.li));
-
-      // Update counters
-      const upCountEl = upcomingWrapper.querySelector("summary .count");
-      const pastCountEl = pastWrapper.querySelector("summary .count");
-      if (upCountEl) upCountEl.textContent = `(${upcoming.length})`;
-      if (pastCountEl) pastCountEl.textContent = `(${past.length})`;
-
-      // If no items, soften the dropdown
-      if (!upcoming.length) upcomingWrapper.setAttribute("aria-disabled", "true");
-      if (!past.length) pastWrapper.setAttribute("aria-disabled", "true");
-    });
-  </script>
-
   <style>
-    /* --- Design tokens --- */
     :root {
       --bg: #0f0f10;
       --panel: #17181a;
@@ -87,580 +22,149 @@
       --muted: #b7b7b7;
       --accent: #fa78d1;
       --accent-2: #6fc3ff;
-      --btn: #2a2d32;
-      --btn-hover: #3a3f45;
       --radius: 14px;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --container: 1000px;
-      --space: min(5vw, 28px);
     }
 
-    /* --- Reset / base --- */
-    *,*::before,*::after{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; 
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+
+    body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 10% -10%, rgba(250,120,209,.12), transparent 60%),
-                  radial-gradient(1200px 800px at 110% 10%, rgba(111,195,255,.12), transparent 60%),
-                  var(--bg);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(250,120,209,.12), transparent 60%),
+        radial-gradient(1200px 800px at 110% 10%, rgba(111,195,255,.12), transparent 60%),
+        var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      overflow-x:hidden;
-    }
-    img{max-width:100%; display:block}
-    a{color:inherit; text-decoration:none}
-
-    /* --- Layout --- */
-    .container{max-width:var(--container); margin:0 auto; padding: calc(var(--space) * 1.5) var(--space)}
-    header{ padding-top: max(env(safe-area-inset-top), 16px); text-align:center; }
-
-    .hero{ display:grid; place-items:center; row-gap: 18px; }
-    .hero img{
-      width:min(900px, 92vw);
-      height:auto;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    h1{
-      margin: 18px 0 6px;
-      font-weight: 800;
-      line-height:1.1;
-      letter-spacing: -0.01em;
-      font-size: clamp(28px, 4.6vw, 44px);
-    }
-
-    .lead{color:var(--muted); font-size: clamp(14px, 2.6vw, 18px)}
-
-    main{margin-top: 14px}
-    .content{ 
-      margin: 0 auto; 
-      background: color-mix(in oklab, var(--panel) 92%, black);
-      border: 1px solid rgba(255,255,255,.06);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-      padding: clamp(16px, 4vw, 28px);
-    }
-    .content p{
-      margin: 0 0 18px;
-      font-size: clamp(16px, 2.6vw, 18px);
-      line-height: 1.6;
-      max-width: 72ch;
-      margin-inline:auto;
-    }
-
-    /* Center the "Kutsu meid esinema" button */
-    .actions{
-      margin: 28px auto 0;
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      align-items: center;
-      gap: 14px;            /* if you add more buttons later */
-      max-width: 720px;     /* optional: keeps it tidy on wide screens */
-      text-align: center;   /* fallback */
-    }
-    @media (max-width: 560px){
-      .actions{
-        flex-direction: column;
-      }
-      .actions .btn{
-        width: 100%;
-        max-width: 360px;   /* optional: nice width on mobile */
-      }
-    }
-
-    #kutsu-button {
-      font-size: 2rem;
-    }
-
-
-    /* --- Shows list --- */
-    .shows{ list-style:none; margin:0; padding:0; display:grid; gap:14px }
-    .show{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.06);
-      padding: 14px 18px;
-      border-radius: calc(var(--radius) - 6px);
-    }
-    .show time{ font-weight:600 }
-
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      background: var(--btn);
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 14px 18px;
-      border-radius: calc(var(--radius) - 4px);
-      font-weight: 600;
-      font-size: 18px;
-      line-height: 1;
-      transition: transform .08s ease, background .25s ease, box-shadow .25s ease;
-      will-change: transform;
-    }
-    .btn:hover{ background: var(--btn-hover) }
-    .btn:active{ transform: translateY(1px) }
-    .btn--primary{
-      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 22%, #000), #2a1f27);
-      border-color: color-mix(in oklab, var(--accent) 35%, #000);
-    }
-    .btn--primary:hover{ filter: brightness(1.08) }
-    .btn--secondary{
-      background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2) 22%, #000), #1d2a35);
-      border-color: color-mix(in oklab, var(--accent-2) 35%, #000);
-    }
-    .btn:focus-visible{ outline: 3px solid color-mix(in oklab, var(--accent) 65%, white); outline-offset: 3px; }
-
-    /* --- Dropdowns (details) --- */
-    details.schedule-box {
-      margin-top: 16px;
-      border: 1px solid rgba(255,255,255,.06);
-      background: color-mix(in oklab, var(--panel) 94%, black);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    details.schedule-box[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
-    details.schedule-box[aria-disabled="true"] { opacity: .7; }
-    details.schedule-box summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 800;
-      user-select: none;
-      font-size: clamp(18px, 2.8vw, 22px);
-    }
-    details.schedule-box summary::-webkit-details-marker { display:none }
-    .caret {
-      display:inline-block;
-      width: 0; height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 8px solid var(--text);
-      transform: rotate(180deg); /* default open caret points up */
-      transition: transform .18s ease;
-    }
-    details[open] .caret { transform: rotate(180deg); }
-    details:not([open]) .caret { transform: rotate(0deg); }
-    details.schedule-box .inner { padding: 16px 20px; }
-
-    /* --- Sponsors --- */
-    .sponsors {
-      margin-top: clamp(28px, 6vw, 70px);
-      background: #1d1e20;
-      padding: clamp(28px, 6vw, 50px) var(--space);
+      min-height: 100dvh;
+      padding: max(env(safe-area-inset-top), 32px) clamp(20px, 5vw, 48px) 48px;
       text-align: center;
+    }
+
+    .card {
+      background: color-mix(in oklab, var(--panel) 92%, black);
+      border: 1px solid rgba(255,255,255,.07);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: clamp(32px, 7vw, 60px) clamp(24px, 6vw, 56px);
+      max-width: 600px;
       width: 100%;
     }
-    .sponsors h2 {
-      color: var(--accent-2);
-      margin-bottom: 28px;
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(250,120,209,.1);
+      border: 1px solid rgba(250,120,209,.25);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 24px;
     }
-    .sponsor-logos {
-      display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(26px, 5vw, 40px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
     }
-    .sponsor-logos img {
-      max-height: 80px; width: auto; object-fit: contain; border-radius: 8px; padding: 6px;
-    }
-    .sponsor-cta {
-      margin-top: 22px;
+
+    .lead {
       color: var(--muted);
       font-size: clamp(15px, 2.4vw, 17px);
-    }
-    .sponsor-cta a {
-      color: var(--accent-2);
-      text-decoration: underline;
+      line-height: 1.65;
+      margin: 0 0 36px;
     }
 
-    /* --- Instagram --- */
-    footer{ margin-top: clamp(28px, 6vw, 70px); background: linear-gradient(0deg, rgba(255,255,255,.04), rgba(255,255,255,0)); border-top: 1px solid rgba(255,255,255,.06); }
-    .ig-wrap{ padding: clamp(20px, 5vw, 36px) var(--space) calc(var(--space) * 2); text-align:center; }
-    footer h2{ color: var(--accent); margin: 0 0 16px; }
-    .ig-grid{ display:flex; gap:12px; justify-content:center; align-items:stretch; flex-wrap:nowrap; max-width:var(--container); margin:0 auto; overflow-x:auto; scroll-snap-type:x proximity; }
-    .ig-item{ display:flex; align-items:center; justify-content:center; gap:10px; background: var(--panel); border: 1px solid rgba(255,255,255,.06); padding: 12px 14px; border-radius: calc(var(--radius) - 6px); transition: background .25s ease, transform .08s ease; min-height: 52px; scroll-snap-align:start; }
-    .ig-item:hover{ background: #1f2125 }
-    .ig-item:active{ transform: translateY(1px) }
-    .ig-item img{ width:20px; height:20px; filter: brightness(0) invert(1) }
-    .handle{ font-size: 16px }
-    @media (max-width: 600px){ .ig-grid{ flex-direction: column; flex-wrap: nowrap; overflow-x: clip; } .ig-item{ width:100%; } }
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,.07);
+      margin: 0 0 32px;
+    }
 
-    @media (prefers-reduced-motion: reduce){ .btn, .ig-item{ transition: none } }
+    .cta-block {
+      background: linear-gradient(135deg, rgba(250,120,209,.08), rgba(111,195,255,.08));
+      border: 1px solid rgba(250,120,209,.2);
+      border-radius: var(--radius);
+      padding: clamp(20px, 4vw, 28px) clamp(20px, 4vw, 32px);
+    }
+
+    .cta-heading {
+      font-size: clamp(18px, 3.2vw, 24px);
+      font-weight: 800;
+      margin: 0 0 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cta-label {
+      font-size: clamp(13px, 2vw, 15px);
+      color: var(--muted);
+      margin: 0 0 20px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0f0f10;
+      font-weight: 700;
+      font-size: clamp(14px, 2.2vw, 16px);
+      border-radius: 100px;
+      padding: 14px 28px;
+      text-decoration: none;
+      transition: opacity .18s, transform .18s;
+      box-shadow: 0 4px 20px rgba(250,120,209,.3);
+    }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    footer {
+      margin-top: 40px;
+      font-size: 13px;
+      color: rgba(255,255,255,.25);
+    }
+    footer a { color: rgba(255,255,255,.4); text-decoration: underline; }
   </style>
 </head>
 <body>
-  <header class="container">
-    <div class="hero">
-      <img src="header.png" alt="Ligipääsetav stand-up – projekti päis" loading="eager" />
-      <h1>Ligipääsetav stand-up</h1>
-      <p class="lead">Projekt toob tasuta stand-up õhtud väiksematesse kohtadesse üle Eesti.</p>
-    </div>
-  </header>
+  <div class="card">
+    <div class="badge">Peagi tagasi</div>
 
-  <main class="container">
-    <section class="content" aria-label="Projekti kirjeldus">
-      <p>
-        "Ligipääsetav stand-up" on projekt (kestus 01.08.25 – 30.04.26), mis soovib tuua stand-up
-        komöödia Eesti väiksematesse paikadesse, et edendada kohalike rahva- ja seltsimajade
-        aktiivsemat kasutamist ning tuua kultuurielu lähemale kogukondadele. Kõik selle projekti
-        raames toimuvad üritused (planeeritud vähemalt 10) on tasuta, kuid sujuvama korralduse huvides
-        palume külastajatel eelnevalt veebis koha broneerida. Nii saame tagada, et kõigile jagub
-        istekohti ning saal jääb mugavaks ja toimivaks.
-      </p>
-      <p>
-        Kui meie kalendris või šõude nimekirjas ei leidu kohta, kus meid näha sooviksid või kui oskad
-        meile lihtsalt ideaalset rahva- või seltsimaja soovitada, siis palun anna meile sellest teada
-        „Kutsu meid esinema“ nupu kaudu. Täida sealses vormis olevad kolm välja, vajuta „Saada ära“ ning
-        me vaatame, mis teha annab. Suured tänud kõigile osalejatele juba ette!
-      </p>
+    <h1>Leht on täiendamisel ✨</h1>
 
-      <div class="actions" role="navigation" aria-label="Peamised tegevused">
-        <a class="btn btn--secondary" id="kutsu-button" href="https://forms.gle/RDPZ7Qtq2UUX4yM38" target="_blank" rel="noopener noreferrer">Kutsu meid esinema</a>
-      </div>
-    </section>
-
-    <!-- Upcoming shows dropdown (open by default) -->
-    <details class="schedule-box upcoming-schedule content" open aria-label="Eelseisvate šõude kalender">
-      <summary>
-        <span class="caret" aria-hidden="true"></span>
-        Eelseisvad šõud <span class="count" style="opacity:.8; font-weight:600">(…)</span>
-      </summary>
-      <div class="inner">
-        <ul class="shows" id="upcomingShows">
-          <!-- Pre-seeded items; script will sort and manage them -->
-          <li class="show">
-            <span><time datetime="2025-08-22">22. august 2025</time> – Mustla Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          <li class="show">
-            <span><time datetime="2025-10-17">17. oktoober 2025</time> – Kiili Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kiili-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          <li class="show">
-            <span><time datetime="2025-10-31">31. oktoober 2025</time> – Tapa Kultuurikoda</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/tapa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          <li class="show">
-            <span><time datetime="2025-11-07">7. november 2025</time> – Laagri Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/laagri-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          <li class="show">
-            <span><time datetime="2025-11-14">14. november 2025</time> – Vändra Kultuurimaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/vandra-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          <li class="show">
-            <span><time datetime="2025-11-15">15. november 2025</time> – Märjamaa Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/marjamaa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          <li class="show">
-            <span><time datetime="2025-11-21">21. november 2025</time> – Sindi Seltsimaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/sindi-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-11-22">22. november 2025</time> – Kiviõli Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kivioli-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-11-27">28. november 2025</time> – Kuusalu Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kuusalu-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-11-27">29. november 2025</time> – Räpina Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/rapina-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-12-05">5. detsember 2025</time> – Kabli Seltsimaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kabli-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-12-05">6. detsember 2025</time> – Rõngu Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/rongu-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-12-12">12. detsember 2025</time> – Järvakandi Kultuurihall</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/jarva-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2025-12-13">13. detsember 2025</time> – Haljala Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/haljala-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-01-09">9. jaanuar 2026</time> – Karksi-Nuia Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/karksi-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-01-10">10. jaanuar 2026</time> – Rae Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/rae-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          
-          <li class="show">
-            <span><time datetime="2026-01-23">23. jaanuar 2026</time> – Lihula Kultuurimaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/lihula-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-01-24">24. jaanuar 2026</time> – Laekvere Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/laekvere-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>     
-
-          <li class="show">
-            <span><time datetime="2026-01-30">30. jaanuar 2026</time> – Padise Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/padise-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-01-31">31. jaanuar 2026</time> – Kambja Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kambja-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-02-13">13. veebruar 2026</time> – Vastemõisa Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/vastemoisa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-02-14">14. veebruar 2026</time> – Kärdla Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kardla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-02-20">20. veebruar 2026</time> – Aakre Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/aakre-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-02-21">21. veebruar 2026</time> – Valga Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/valga-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-02-26">26. veebruar 2026</time> – Väike-Maarja Seltsimaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/maarja-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-02-28">28. veebruar 2026</time> – Torma Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/torma-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-03-06">6. märts 2026</time> – Oru Kultuurisaal</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/oru-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-03-07">7. märts 2026</time> – Põlva Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/polva-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-03-12">12. märts 2026</time> – Sillemäe Kultuuri- ja Huvikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/sillamae-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-03-13">13. märts 2026</time> – Mustvee Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/mustvee-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-03-14">14. märts 2026</time> – Kihelkonna Rahvamaja</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/saaremaa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-03-20">20. märts 2026</time> – Antsla Kultuurikeskus</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/antsla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          
-          <li class="show">
-            <span><time datetime="2026-03-21">21. märts 2026</time> – Luunja Kultuuri- ja Vabaajakeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/luunja-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          
-          <li class="show">
-            <span><time datetime="2026-03-26">26. märts 2026</time> – Kiisa Vabaajakeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kiisa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          
-          <li class="show">
-            <span><time datetime="2026-03-27">27. märts 2026</time> – Põltsamaa Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/poltsamaa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-          
-          <li class="show">
-            <span><time datetime="2026-03-28">28. märts 2026</time> – Riisipere Kultuurimaja
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/riisipere-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-        
-          <li class="show">
-            <span><time datetime="2026-04-01">1. aprill 2026</time> – Uus Laine (TALLINN)
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/s/tallinna-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-02">2. aprill 2026</time> – Tõstamaa Rahvamaja
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/tostamaa-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-03">3. aprill 2026</time> – Viimsi Huvikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/viimsi-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-09">9. aprill 2026</time> – Kilingi-Nõmme Klubi
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kilingi-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-10">10. aprill 2026</time> – Türi Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/turi-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-
-          <li class="show">
-            <span><time datetime="2026-04-11">11. aprill 2026</time> – Jõgeva Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/jogeva-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-16">16. aprill 2026</time> – Puiga Rahvamaja
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/puiga-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-17">17. aprill 2026</time> – Aruküla Rahvamaja
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/arukula-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-18">18. aprill 2026</time> – Vaba Lava Narva
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/narva-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-23">23. aprill 2026</time> – Tamsalu Kultuurimaja
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/tamsalu-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-24">24. aprill 2026</time> – Kose Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/kose-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-25">25. aprill 2026</time> – Haapsalu Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/haapsalu-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-26">26. aprill 2026</time> – Saku Valla Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/saku-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
-          </li>
-
-          <li class="show">
-            <span><time datetime="2026-04-29">29. aprill 2026</time> – Grande Finale | Mere Kultuurikeskus
-</span>
-            <a class="btn btn--primary" href="https://fienta.com/et/ligipaasetav-grande-finale" target="_blank" rel="noopener noreferrer">Broneeri koht siit</a>
-          </li>
-
-        </ul>
-      </div>
-    </details>
-
-    <!-- Past shows dropdown -->
-    <details class="schedule-box past-schedule content" aria-label="Varasemate šõude arhiiv">
-      <summary>
-        <span class="caret" aria-hidden="true"></span>
-        Toimunud šõud <span class="count" style="opacity:.8; font-weight:600">(…)</span>
-      </summary>
-      <div class="inner">
-        <ul class="shows" id="pastShows"></ul>
-      </div>
-    </details>
-  </main>
-
-  <!-- Sponsors -->
-  <section class="sponsors" aria-label="Sponsorid">
-    <h2>Meie toetajad</h2>
-    <div class="sponsor-logos">
-      <img src="./logos/kr-eu-trans.png" alt="Kaasrahastanud Euroopa Liit" />
-      <img src="./logos/sol-eu-trans.png" alt="Euroopa Solidaarsuskorpus" />
-      <img src="./logos/kuma-trans.png" alt="Kuma Print" />
-      <img src="./logos/fienta-blue.png" alt="Fienta" />
-    </div>
-    <p class="sponsor-cta">
-      Kas soovid ka oma panuse anda? Kirjuta meile
-      <a href="mailto:info@ligipaasetav.eu">info@ligipaasetav.eu</a>
+    <p class="lead">
+      Töötame uue hooaja kallal ning uuendame lehte.<br>
+      Varsti leiab siit kõik vajaliku!
     </p>
-    <p class="sponsor-cta">
-      Või tee lihtsalt väike ülekanne
-      <br>
-      <b>JANAR PETERSON EE417700771012064868</b>
-    </p>
-  </section>
+
+    <hr class="divider" />
+
+    <div class="cta-block">
+      <p class="cta-heading">Tahad meid enda kandis näha? 📍</p>
+      <p class="cta-label">Anna sellest märku — me tuleme hea meelega!</p>
+      <a class="btn" target="_blank" href="https://kutsu.ligipaasetav.eu">
+        ✉️ &nbsp;Anna märku
+      </a>
+    </div>
+  </div>
 
   <footer>
-    <div class="ig-wrap container">
-      <h2>Jälgi meid Instagramis</h2>
-      <div class="ig-grid">
-        <a class="ig-item" href="https://www.instagram.com/laasikmartin" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @laasikmartin">
-          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
-          <span class="handle">@laasikmartin</span>
-        </a>
-        <a class="ig-item" href="https://www.instagram.com/janar.peterson" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @janar.peterson">
-          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
-          <span class="handle">@janar.peterson</span>
-        </a>
-        <a class="ig-item" href="https://www.instagram.com/mikkmgi" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @mikkmgi">
-          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
-          <span class="handle">@mikkmgi</span>
-        </a>
-        <a class="ig-item" href="https://www.instagram.com/rivo.roost" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @rivo.roost">
-          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
-          <span class="handle">@rivo.roost</span>
-        </a>
-        <a class="ig-item" href="https://www.instagram.com/martin_a_levo" target="_blank" rel="noopener noreferrer" aria-label="Ava Instagram: @martin_a_levo">
-          <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" loading="lazy" />
-          <span class="handle">@martin_a_levo</span>
-        </a>
-      </div>
-    </div>
+    © Ligipääsetav stand-up &nbsp;·&nbsp;
+    <a href="mailto:info@ligipaasetav.eu">info@ligipaasetav.eu</a>
   </footer>
 </body>
 </html>
