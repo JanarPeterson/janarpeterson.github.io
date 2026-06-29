@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Ligipääsetav stand-up</title>
+  <title>Tasuta stand-up üle Eesti - Ligipääsetav stand-up</title>
+
+  <link rel="stylesheet" href="/components/shared.css" />
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MYD7NST72"></script>
@@ -14,7 +16,10 @@
     gtag('config', 'G-2MYD7NST72');
   </script>
 
+  <script src="/components/config.js"></script>
+
   <style>
+    /* --- Design tokens --- */
     :root {
       --bg: #0f0f10;
       --panel: #17181a;
@@ -22,22 +27,33 @@
       --muted: #b7b7b7;
       --accent: #fa78d1;
       --accent-2: #6fc3ff;
+      --btn: #2a2d32;
+      --btn-hover: #3a3f45;
       --radius: 14px;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --container: 1000px;
+      --space: min(5vw, 28px);
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
-
-    body {
+    /* --- Reset / base --- */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 800px at 10% -10%, rgba(250,120,209,.12), transparent 60%),
-        radial-gradient(1200px 800px at 110% 10%, rgba(111,195,255,.12), transparent 60%),
-        var(--bg);
+      background: radial-gradient(1200px 800px at 10% -10%, rgba(250,120,209,.12), transparent 60%),
+                  radial-gradient(1200px 800px at 110% 10%, rgba(111,195,255,.12), transparent 60%),
+                  var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
-      display: flex;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    img{max-width:100%; display:block}
+    a{color:inherit; text-decoration:none}
+
+    /* ── Maintenance page ─────────────────────────────────────────────────── */
+    #page-maintenance {
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -70,7 +86,7 @@
       margin-bottom: 24px;
     }
 
-    h1 {
+    #page-maintenance h1 {
       margin: 0 0 14px;
       font-size: clamp(26px, 5vw, 40px);
       font-weight: 800;
@@ -78,7 +94,7 @@
       letter-spacing: -0.01em;
     }
 
-    .lead {
+    .lead-maint {
       color: var(--muted);
       font-size: clamp(15px, 2.4vw, 17px);
       line-height: 1.65;
@@ -115,7 +131,7 @@
       line-height: 1.5;
     }
 
-    .btn {
+    .btn-maint {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -129,42 +145,523 @@
       transition: opacity .18s, transform .18s;
       box-shadow: 0 4px 20px rgba(250,120,209,.3);
     }
-    .btn:hover { opacity: .88; transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
+    .btn-maint:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-maint:active { transform: translateY(0); }
 
-    footer {
+    #page-maintenance footer {
       margin-top: 40px;
       font-size: 13px;
       color: rgba(255,255,255,.25);
     }
-    footer a { color: rgba(255,255,255,.4); text-decoration: underline; }
+    #page-maintenance footer a { color: rgba(255,255,255,.4); text-decoration: underline; }
+
+    /* ── Full site ────────────────────────────────────────────────────────── */
+    #page-full { display: none; }
+
+    /* --- Layout --- */
+
+    h1{
+      margin: 18px 0 6px;
+      font-weight: 800;
+      line-height:1.1;
+      letter-spacing: -0.01em;
+      font-size: clamp(28px, 4.6vw, 44px);
+    }
+
+    .lead{color:var(--muted); font-size: clamp(14px, 2.6vw, 18px)}
+
+    main{margin-top: 14px}
+    .content{
+      margin: 0 auto;
+      background: color-mix(in oklab, var(--panel) 92%, black);
+      border: 1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: clamp(16px, 4vw, 28px);
+    }
+    .content p{
+      margin: 0 0 18px;
+      font-size: clamp(16px, 2.6vw, 18px);
+      line-height: 1.6;
+      max-width: 72ch;
+      margin-inline:auto;
+    }
+
+    .actions{
+      margin: 28px auto 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      max-width: 720px;
+      text-align: center;
+    }
+    @media (max-width: 560px){
+      .actions{ flex-direction: column; }
+      .actions .btn{ width: 100%; max-width: 360px; }
+    }
+
+    #kutsu-button { font-size: 2rem; }
+
+    /* --- Shows list --- */
+    .shows{ list-style:none; margin:0; padding:0; display:grid; gap:14px }
+    .show{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.06);
+      padding: 14px 18px;
+      border-radius: calc(var(--radius) - 6px);
+    }
+    .show time{ font-weight:600 }
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      background: var(--btn);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 14px 18px;
+      border-radius: calc(var(--radius) - 4px);
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 1;
+      transition: transform .08s ease, background .25s ease, box-shadow .25s ease;
+      will-change: transform;
+    }
+    .btn:hover{ background: var(--btn-hover) }
+    .btn:active{ transform: translateY(1px) }
+    .btn--primary{
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 22%, #000), #2a1f27);
+      border-color: color-mix(in oklab, var(--accent) 35%, #000);
+    }
+    .btn--primary:hover{ filter: brightness(1.08) }
+    .btn--secondary{
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent-2) 22%, #000), #1d2a35);
+      border-color: color-mix(in oklab, var(--accent-2) 35%, #000);
+    }
+    .btn:focus-visible{ outline: 3px solid color-mix(in oklab, var(--accent) 65%, white); outline-offset: 3px; }
+
+    /* --- Dropdowns (details) --- */
+    details.schedule-box {
+      margin-top: 16px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: color-mix(in oklab, var(--panel) 94%, black);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    details.schedule-box[open] summary { border-bottom: 1px solid rgba(255,255,255,.06); }
+    details.schedule-box[aria-disabled="true"] { opacity: .7; }
+    details.schedule-box summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      user-select: none;
+      font-size: clamp(18px, 2.8vw, 22px);
+    }
+    details.schedule-box summary::-webkit-details-marker { display:none }
+    .caret {
+      display:inline-block;
+      width: 0; height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--text);
+      transform: rotate(180deg);
+      transition: transform .18s ease;
+    }
+    details[open] .caret { transform: rotate(180deg); }
+    details:not([open]) .caret { transform: rotate(0deg); }
+    details.schedule-box .inner { padding: 16px 20px; }
+
+    /* --- Comedians --- */
+    .comedians {
+      max-width: var(--container);
+      margin: clamp(40px, 6vw, 80px) auto 0;
+      padding: 0 var(--space);
+    }
+    .comedians__heading {
+      text-align: center;
+      margin-bottom: clamp(24px, 4vw, 40px);
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .comedians__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .bio-card {
+      background: color-mix(in oklab, var(--panel) 92%, black);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .bio-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(250,120,209,.35);
+    }
+    .bio-card__img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+    }
+    .bio-card__body {
+      padding: clamp(16px, 3vw, 24px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .bio-card__name {
+      font-size: clamp(17px, 2.6vw, 21px);
+      font-weight: 800;
+      margin: 0;
+      color: var(--accent);
+    }
+    .bio-card__text {
+      font-size: clamp(13px, 2vw, 15px);
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* --- Sponsors --- */
+    .sponsors {
+      margin-top: clamp(28px, 6vw, 70px);
+      background: #1d1e20;
+      padding: clamp(28px, 6vw, 50px) var(--space);
+      text-align: center;
+      width: 100%;
+    }
+    .sponsors h2 { color: var(--accent-2); margin-bottom: 8px; }
+    .sponsor-tier-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 28px 0 16px;
+    }
+    .sponsor-logos {
+      display: flex; justify-content: center; align-items: center; gap: 32px; flex-wrap: wrap;
+    }
+    .sponsor-logos--large img {
+      max-height: 80px; width: auto; object-fit: contain; border-radius: 8px; padding: 6px;
+    }
+    .sponsor-logos--small img {
+      max-height: 44px; width: auto; object-fit: contain; border-radius: 6px; padding: 4px;
+      opacity: 0.85;
+    }
+    .sponsor-logos img { filter: brightness(0) invert(1); }
+    .sponsor-cta {
+      margin-top: 28px;
+      font-size: clamp(15px, 2.4vw, 17px);
+      color: var(--muted);
+    }
+    .sponsor-cta a { color: var(--accent-2); text-decoration: underline; }
+
+    .kutsu-cta {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+    .kutsu-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(14px, 2.2vw, 16px);
+    }
+
+    @media (prefers-reduced-motion: reduce){ .btn{ transition: none } }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">Peagi tagasi</div>
 
-    <h1>Leht on täiendamisel ✨</h1>
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MAINTENANCE PAGE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="page-maintenance">
+    <div class="card">
+      <div class="badge">Peagi tagasi</div>
 
-    <p class="lead">
-      Töötame uue hooaja kallal ning uuendame lehte.<br>
-      Varsti leiab siit kõik vajaliku!
-    </p>
+      <h1>Leht on täiendamisel ✨</h1>
 
-    <hr class="divider" />
+      <p class="lead-maint">
+        Töötame uue hooaja kallal ning uuendame lehte.<br>
+        Varsti leiab siit kõik vajaliku!
+      </p>
 
-    <div class="cta-block">
-      <p class="cta-heading">Tahad meid enda kandis näha? 📍</p>
-      <p class="cta-label">Anna sellest märku — me tuleme hea meelega!</p>
-      <a class="btn" target="_blank" href="https://kutsu.ligipaasetav.eu">
-        ✉️ &nbsp;Anna märku
-      </a>
+      <hr class="divider" />
+
+      <div class="cta-block">
+        <p class="cta-heading">Tahad meid enda kandis näha? 📍</p>
+        <p class="cta-label">Anna sellest märku — me tuleme hea meelega!</p>
+        <a class="btn-maint" target="_blank" href="https://kutsu.ligipaasetav.eu">
+          ✉️ &nbsp;Anna märku
+        </a>
+      </div>
     </div>
+
+    <footer>
+      © Ligipääsetav stand-up &nbsp;·&nbsp;
+      <a href="mailto:info@ligipaasetav.eu">info@ligipaasetav.eu</a>
+    </footer>
   </div>
 
-  <footer>
-    © Ligipääsetav stand-up &nbsp;·&nbsp;
-    <a href="mailto:info@ligipaasetav.eu">info@ligipaasetav.eu</a>
-  </footer>
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       FULL SITE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div id="page-full">
+    <div id="site-header"></div>
+
+    <main class="container">
+      <section class="content" aria-label="Projekti kirjeldus">
+        <h2 style="text-align:center; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 20px;">Natuke projektist</h2>
+        <p>
+          "Ligipääsetav stand-up" on projekt (kestus 01.08.25 – 30.04.26), mis soovib tuua stand-up
+          komöödia Eesti väiksematesse paikadesse, et edendada kohalike rahva- ja seltsimajade
+          aktiivsemat kasutamist ning tuua kultuurielu lähemale kogukondadele. Kõik selle projekti
+          raames toimuvad üritused (planeeritud vähemalt 10) on tasuta, kuid sujuvama korralduse huvides
+          palume külastajatel eelnevalt veebis koha broneerida. Nii saame tagada, et kõigile jagub
+          istekohti ning saal jääb mugavaks ja toimivaks.
+        </p>
+        <p>
+          Kui meie kalendris või šõude nimekirjas ei leidu kohta, kus meid näha sooviksid või kui oskad
+          meile lihtsalt ideaalset rahva- või seltsimaja soovitada, siis palun anna meile sellest teada
+          „Kutsu meid esinema" nupu kaudu. Täida sealses vormis olevad kolm välja, vajuta „Saada ära" ning
+          me vaatame, mis teha annab. Suured tänud kõigile osalejatele juba ette!
+        </p>
+
+      </section>
+
+      <!-- Upcoming shows dropdown (open by default) -->
+      <details class="schedule-box upcoming-schedule content" open aria-label="Eelseisvate ürituste kalender">
+        <summary>
+          <span class="caret" aria-hidden="true"></span>
+          Eelseisvad üritused <span class="count" style="opacity:.8; font-weight:600">(…)</span>
+        </summary>
+        <div class="inner">
+          <ul class="shows" id="upcomingShows">
+        <!--     <li class="show">
+              <span><time datetime="2025-08-22">22. august 2025</time> – Mustla Rahvamaja</span>
+              <a class="btn btn--primary" href="https://fienta.com/et/mustla-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
+            </li>
+            <li class="show">
+              <span><time datetime="2025-10-17">17. oktoober 2025</time> – Kiili Rahvamaja</span>
+              <a class="btn btn--primary" href="https://fienta.com/et/kiili-stand-up-ohtu" target="_blank" rel="noopener noreferrer">Broneeri tasuta koht siit</a>
+            </li> -->
+          </ul>
+        </div>
+      </details>
+
+      <!-- Past shows dropdown -->
+      <details class="schedule-box past-schedule content" aria-label="Varasemate ürituste arhiiv">
+        <summary>
+          <span class="caret" aria-hidden="true"></span>
+          Toimunud üritused <span class="count" style="opacity:.8; font-weight:600">(…)</span>
+        </summary>
+        <div class="inner">
+          <ul class="shows" id="pastShows"></ul>
+        </div>
+      </details>
+
+      <div class="cta-block" style="margin-top:24px; text-align:center;">
+        <p class="cta-heading">Kas ei leidnud sobivat üritust? 📍</p>
+        <p class="cta-label">Anna teada kus meid näha soovid - me tule hea meelega!</p>
+        <a class="btn-maint" target="_blank" rel="noopener noreferrer" href="https://forms.gle/RDPZ7Qtq2UUX4yM38">
+          ✉️ &nbsp;Kutsu meid esinema
+        </a>
+      </div>
+    </main>
+
+    <!-- Comedians -->
+    <section class="comedians" aria-label="Meie koomikud">
+      <h2 class="comedians__heading">Meie koomikud</h2>
+      <div class="comedians__grid">
+
+        <a class="bio-card" href="https://www.instagram.com/janar.peterson/" target="_blank" rel="noopener noreferrer">
+          <img class="bio-card__img" src="./img/Koomik - Peterson.JPG" alt="Janar Peterson" loading="lazy" />
+          <div class="bio-card__body">
+            <h3 class="bio-card__name">Janar Peterson</h3>
+            <p class="bio-card__text">Placeholder bio tekst. Siin tuleb koomiku lühitutvustus — kes ta on, kust pärit, mis tema stiil on ja miks teda tasub tulla vaatama. Lisatakse hiljem täpne info.</p>
+          </div>
+        </a>
+
+        <a class="bio-card" href="https://www.instagram.com/laasikmartin/" target="_blank" rel="noopener noreferrer">
+          <img class="bio-card__img" src="./img/Koomik - Laasik.JPG" alt="Martin Laasik" loading="lazy" />
+          <div class="bio-card__body">
+            <h3 class="bio-card__name">Martin Laasik</h3>
+            <p class="bio-card__text">Placeholder bio tekst. Siin tuleb koomiku lühitutvustus — kes ta on, kust pärit, mis tema stiil on ja miks teda tasub tulla vaatama. Lisatakse hiljem täpne info.</p>
+          </div>
+        </a>
+
+        <a class="bio-card" href="https://www.instagram.com/kaurisosi/" target="_blank" rel="noopener noreferrer">
+          <img class="bio-card__img" src="./img/Koomik - Sosi.JPG" alt="Kauri Sosi" loading="lazy" />
+          <div class="bio-card__body">
+            <h3 class="bio-card__name">Kauri Sosi</h3>
+            <p class="bio-card__text">Placeholder bio tekst. Siin tuleb koomiku lühitutvustus — kes ta on, kust pärit, mis tema stiil on ja miks teda tasub tulla vaatama. Lisatakse hiljem täpne info.</p>
+          </div>
+        </a>
+
+        <a class="bio-card" href="https://www.instagram.com/delikatessu/" target="_blank" rel="noopener noreferrer">
+          <img class="bio-card__img" src="./img/Koomik - Vaas.JPG" alt="Tess Vaas" loading="lazy" />
+          <div class="bio-card__body">
+            <h3 class="bio-card__name">Tess Vaas</h3>
+            <p class="bio-card__text">Tess on projekti ainuke naiskoomik ja üks vähestest Eestis — ning ta alles alustas. Vaatamata alla aasta kogemusele on ta juba esinenud lavadel, kuhu enamik koomikuid alles unistab jõuda. Tema energia tõestab, et naised võivad olla väga naljakad.</p>
+          </div>
+        </a>
+
+        <a class="bio-card" href="https://www.instagram.com/rivo.roost/" target="_blank" rel="noopener noreferrer">
+          <img class="bio-card__img" src="./img/Koomik - Roost.JPG" alt="Rivo Roost" loading="lazy" />
+          <div class="bio-card__body">
+            <h3 class="bio-card__name">Rivo Roost</h3>
+            <p class="bio-card__text">Placeholder bio tekst. Siin tuleb koomiku lühitutvustus — kes ta on, kust pärit, mis tema stiil on ja miks teda tasub tulla vaatama. Lisatakse hiljem täpne info.</p>
+          </div>
+        </a>
+
+        <a class="bio-card" href="https://www.instagram.com/martin_a_levo/" target="_blank" rel="noopener noreferrer">
+          <img class="bio-card__img" src="./img/Koomik - Levo.JPG" alt="Martin Levo" loading="lazy" />
+          <div class="bio-card__body">
+            <h3 class="bio-card__name">Martin Levo</h3>
+            <p class="bio-card__text">Placeholder bio tekst. Siin tuleb koomiku lühitutvustus — kes ta on, kust pärit, mis tema stiil on ja miks teda tasub tulla vaatama. Lisatakse hiljem täpne info.</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Sponsors -->
+    <section class="sponsors" aria-label="Sponsorid">
+      <h2>Meie toetajad</h2>
+
+      <!--
+      <p class="sponsor-tier-label">Suurtoetajad</p>
+      <div class="sponsor-logos sponsor-logos--large">
+        <img src="./logos/kr-eu-trans.png" alt="Kaasrahastanud Euroopa Liit" />
+        <img src="./logos/sol-eu-trans.png" alt="Euroopa Solidaarsuskorpus" />
+        <img src="https://logo.clearbit.com/swedbank.ee" alt="Swedbank" />
+        <img src="https://logo.clearbit.com/seb.ee" alt="SEB" />
+        <img src="https://logo.clearbit.com/lhv.ee" alt="LHV" />
+        <img src="https://logo.clearbit.com/telia.ee" alt="Telia" />
+      </div>
+      -->
+
+      <p class="sponsor-tier-label">Toetajad</p>
+      <div class="sponsor-logos sponsor-logos--small">
+        <img src="./logos/kuma-trans.png" alt="Kuma Print" />
+        <img src="./logos/fienta-blue.png" alt="Fienta" />
+        <!--
+        <img src="https://logo.clearbit.com/bolt.eu" alt="Bolt" />
+        <img src="https://logo.clearbit.com/wise.com" alt="Wise" />
+        <img src="https://logo.clearbit.com/pipedrive.com" alt="Pipedrive" />
+        <img src="https://logo.clearbit.com/apollo.ee" alt="Apollo" />
+        <img src="https://logo.clearbit.com/elisa.ee" alt="Elisa" />
+        <img src="https://logo.clearbit.com/cleveron.com" alt="Cleveron" />
+        <img src="https://logo.clearbit.com/printify.com" alt="Printify" />
+        <img src="https://logo.clearbit.com/omniva.ee" alt="Omniva" />
+        <img src="https://logo.clearbit.com/montonio.com" alt="Montonio" />
+        <img src="https://logo.clearbit.com/veriff.com" alt="Veriff" />
+        -->
+      </div>
+
+      <div class="cta-block" style="margin-top:32px; text-align:center; max-width:calc(var(--container) - 2 * var(--space)); margin-left:auto; margin-right:auto;">
+        <p class="cta-heading">Tahad ka toetada? 🤝</p>
+        <p class="cta-label">Tule koostööpartneriks või toeta konkreetset üritust.</p>
+        <a class="btn-maint" href="/koostoo.html">Uuri lähemalt</a>
+      </div>
+    </section>
+
+    <div id="site-footer"></div>
+  </div>
+
+  <script src="/components/shared.js" defer></script>
+  <script>
+    // Apply the toggle
+    if (MAINTENANCE_MODE) {
+      document.getElementById('page-maintenance').style.display = 'flex';
+    } else {
+      document.getElementById('page-full').style.display = 'block';
+    }
+
+    // Shows sorting logic (only runs when full site is visible)
+    if (!MAINTENANCE_MODE) {
+      document.addEventListener("DOMContentLoaded", () => {
+        const upcomingList = document.querySelector("#upcomingShows");
+        const pastList = document.querySelector("#pastShows");
+        const upcomingWrapper = document.querySelector(".upcoming-schedule");
+        const pastWrapper = document.querySelector(".past-schedule");
+
+        const allShows = Array.from(document.querySelectorAll(".show"));
+        const now = new Date();
+        const parsed = allShows.map(li => {
+          const timeEl = li.querySelector("time");
+          const link = li.querySelector("a.btn");
+          const dateStr = timeEl?.getAttribute("datetime") || "";
+          const d = new Date(dateStr);
+          d.setDate(d.getDate() + 1);
+          const isPast = !isNaN(+d) && d < now;
+
+          if (isPast && link) {
+            link.removeAttribute("href");
+            link.removeAttribute("target");
+            link.removeAttribute("rel");
+            link.textContent = "Üritus on toimunud";
+            link.style.pointerEvents = "none";
+            link.style.opacity = "0.6";
+          }
+
+          if (link.classList.contains('show-inactive')) {
+            link.removeAttribute("href");
+            link.removeAttribute("target");
+            link.removeAttribute("rel");
+            link.style.pointerEvents = "none";
+            link.style.opacity = "0.6";
+          }
+
+          return { li, date: d, isPast };
+        });
+
+        upcomingList.innerHTML = "";
+        pastList.innerHTML = "";
+
+        const upcoming = parsed.filter(x => !x.isPast)
+          .sort((a, b) => (+a.date || 0) - (+b.date || 0));
+        const past = parsed.filter(x => x.isPast)
+          .sort((a, b) => (+b.date || 0) - (+a.date || 0));
+
+        upcoming.forEach(x => upcomingList.appendChild(x.li));
+        past.forEach(x => pastList.appendChild(x.li));
+
+        const upCountEl = upcomingWrapper.querySelector("summary .count");
+        const pastCountEl = pastWrapper.querySelector("summary .count");
+        if (upCountEl) upCountEl.textContent = `(${upcoming.length})`;
+        if (pastCountEl) pastCountEl.textContent = `(${past.length})`;
+
+        if (!upcoming.length) {
+          upcomingWrapper.setAttribute("aria-disabled", "true");
+          upcomingList.innerHTML = '<li style="text-align:center; color:var(--muted); padding: 12px 0; font-style:italic;">Kalender on planeerimisel</li>';
+        }
+        if (!past.length) pastWrapper.setAttribute("aria-disabled", "true");
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Toeta meid – Ligipääsetav stand-up</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MYD7NST72"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2MYD7NST72');
+  </script>
+
+  <script src="/components/config.js"></script>
+  <script src="/components/maintenance-check.js"></script>
+  <link rel="stylesheet" href="/components/shared.css" />
+
+  <style>
+    :root {
+      --bg: #0f0f10;
+      --panel: #17181a;
+      --text: #ffffff;
+      --muted: #b7b7b7;
+      --accent: #fa78d1;
+      --accent-2: #6fc3ff;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --container: 1000px;
+      --space: min(5vw, 28px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(250,120,209,.12), transparent 60%),
+        radial-gradient(1200px 800px at 110% 10%, rgba(111,195,255,.12), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+    }
+
+    h1, h2, h3 { margin: 0; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    .lead { color: var(--muted); font-size: clamp(14px, 2.6vw, 18px); }
+
+    /* ── Page intro ─────────────────────────────────────────────────────── */
+    .intro {
+      text-align: center;
+      padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 48px) clamp(32px, 6vw, 56px);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .intro h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .intro p {
+      color: var(--muted);
+      font-size: clamp(15px, 2.4vw, 18px);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* ── Support options grid ───────────────────────────────────────────── */
+    .options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 clamp(20px, 5vw, 48px) clamp(48px, 8vw, 96px);
+    }
+
+    .option-card {
+      background: color-mix(in oklab, var(--panel) 92%, black);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(24px, 4vw, 40px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .option-card.featured {
+      border-color: rgba(250,120,209,.3);
+      background: color-mix(in oklab, var(--panel) 88%, rgba(250,120,209,.15));
+    }
+
+    .option-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 4px 12px;
+      width: fit-content;
+    }
+    .option-tag.pink {
+      color: var(--accent);
+      background: rgba(250,120,209,.1);
+      border: 1px solid rgba(250,120,209,.25);
+    }
+    .option-tag.blue {
+      color: var(--accent-2);
+      background: rgba(111,195,255,.1);
+      border: 1px solid rgba(111,195,255,.25);
+    }
+
+    .option-card h2 {
+      font-size: clamp(20px, 3vw, 26px);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .option-card p.desc {
+      color: var(--muted);
+      font-size: clamp(14px, 2.2vw, 16px);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ── Perks list ─────────────────────────────────────────────────────── */
+    .perks {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .perks li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: clamp(13px, 2vw, 15px);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .perks li::before {
+      content: '✓';
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .option-card.featured .perks li::before { color: var(--accent); }
+    .option-card:not(.featured) .perks li::before { color: var(--accent-2); }
+
+    /* ── CTA button ─────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: clamp(14px, 2vw, 16px);
+      border-radius: 100px;
+      padding: 14px 28px;
+      text-decoration: none;
+      transition: opacity .18s, transform .18s;
+      margin-top: auto;
+      width: 100%;
+    }
+    .btn-pink {
+      background: linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 70%, var(--accent-2)));
+      color: #0f0f10;
+      box-shadow: 0 4px 20px rgba(250,120,209,.3);
+    }
+    .btn-blue {
+      background: linear-gradient(135deg, var(--accent-2), color-mix(in oklab, var(--accent-2) 70%, var(--accent)));
+      color: #0f0f10;
+      box-shadow: 0 4px 20px rgba(111,195,255,.25);
+    }
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+    .transfer-section {
+      text-align: center;
+      padding: 0 clamp(20px, 5vw, 48px) clamp(40px, 6vw, 64px);
+    }
+    .transfer-text {
+      color: var(--muted);
+      font-size: clamp(14px, 2.2vw, 16px);
+      margin: 0;
+    }
+    .transfer-text b {
+      color: var(--text);
+      display: block;
+      margin-top: 6px;
+      font-size: clamp(15px, 2.4vw, 17px);
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <section class="intro">
+    <h1>Täname, et kaalud meid toetada!</h1>
+    <p>
+      "Ligipääsetav stand-up" toob tasuta stand-up õhtud väiksematesse kogukondadesse üle Eesti.
+      Sinu tugi aitab meil seda teha. Vali endale sobiv viis, kuidas panustada.
+    </p>
+  </section>
+
+  <div class="options">
+
+    <!-- Option 1: Koostööpartner -->
+    <div class="option-card featured">
+      <span class="option-tag pink">Koostööpartner</span>
+      <h2>Tule koostööpartneriks</h2>
+      <p class="desc">
+        Mida tähendab kogu tuuri kestev koostööpartnerlus ja miks see on hea valik.
+      </p>
+      <ul class="perks">
+        <li>Logo kuvamine kõikidel projekti materjalidel (kogu tuur)</li>
+        <li>Mainimine sotsiaalmeedias ja pressiteadetes</li>
+        <li>Ainult suurtoetajale mõeldud 30-minutiline privaatesinemine</li>
+      </ul>
+      <a class="btn btn-pink" href="mailto:info@ligipaasetav.eu">✉️ &nbsp;Võta ühendust</a>
+    </div>
+
+    <!-- Option 2: Ürituse toetaja -->
+    <div class="option-card">
+      <span class="option-tag blue">Ürituse toetaja</span>
+      <h2>Toeta konkreetset üritust</h2>
+      <p class="desc">
+        Mida tähendab ühe konkreetse ürituse toetamine
+        ja mis hüved sellega kaasnevad.
+      </p>
+      <ul class="perks">
+        <li>Logo kuvamine ürituse materjalidel (üks show)</li>
+        <li>Mainimine ürituse sotsiaalmeedias</li>
+        <li>Toetaja füüsilne reklaam ürituse toimumiskohas (toetaja poolsed bannerid ja mainimine show vältel)</li>
+      </ul>
+      <a class="btn btn-blue" href="mailto:info@ligipaasetav.eu">✉️ &nbsp;Võta ühendust</a>
+    </div>
+
+  </div>
+
+  <section class="transfer-section">
+    <p class="transfer-text">
+      Või tee lihtsalt väike ülekanne —
+      <b>JANAR PETERSON EE417700771012064868</b>
+    </p>
+  </section>
+
+  <div id="site-footer"></div>
+
+  <script src="/components/shared.js" defer></script>
+</body>
+</html>
